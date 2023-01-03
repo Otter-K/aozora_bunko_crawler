@@ -27,12 +27,14 @@ class CardCrawler
   end
 
   def find_body_xhtml_link(card_html)
-    doc = Nokogiri::HTML.parse(card_html, nil, charset)
+    doc = Nokogiri::HTML.parse(card_html, nil, nil)
     link = doc.at_css('table.download td:contains("XHTML") ~ td a').attr('href')
     URI.join(card_url, link)
   end
 end
 
-card_url = ARGV[0] || 'https://www.aozora.gr.jp/cards/001383/card56875.html'
-crawler = CardCrawler.new(card_url)
-crawler.card_crawl
+if __FILE__ == $PROGRAM_NAME
+  card_url = ARGV[0] || 'https://www.aozora.gr.jp/cards/001383/card56875.html'
+  crawler = CardCrawler.new(card_url)
+  crawler.card_crawl
+end
