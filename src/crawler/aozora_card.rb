@@ -36,5 +36,5 @@ end
 if __FILE__ == $PROGRAM_NAME
   card_url = ARGV[0] || 'https://www.aozora.gr.jp/cards/001383/card56875.html'
   crawler = CardCrawler.new(card_url)
-  crawler.card_crawl
+  puts crawler.card_crawl[0..1000]
 end
