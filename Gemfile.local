@@ -1,0 +1,5 @@
+# デフォルトのGemfileを読み込む
+eval_gemfile "Gemfile"
+
+# 自分が使いたいgemを宣言する
+gem "pry-byebug"
