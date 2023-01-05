@@ -3,19 +3,32 @@ require 'nokogiri'
 require 'uri'
 
 class CardCrawler
-  attr_reader :card_url
+  attr_reader :card_url, :card_html, :title
 
   def initialize(card_url)
     @card_url = card_url
+    @card_html = fetch_html(card_url)
+    @title = title
   end
 
   def card_crawl
-    card_html = fetch_html(card_url)
-    body_xhtml_link = find_body_xhtml_link(card_html)
-    fetch_html(body_xhtml_link)
+    body_xhtml = fetch_body_xhtml
+    puts "crawling #{title}"
+    {title:title, body: body_xhtml}
   end
 
   private
+
+  def fetch_body_xhtml
+    body_xhtml_link = find_body_xhtml_link
+    fetch_html(body_xhtml_link)
+  end
+
+  def find_body_xhtml_link
+    doc = Nokogiri::HTML.parse(card_html, nil, nil)
+    link = doc.at_css('table.download td:contains("XHTML") ~ td a').attr('href')
+    URI.join(card_url, link)
+  end
 
   def fetch_html(url)
     sleep 1
@@ -26,15 +39,14 @@ class CardCrawler
     end
   end
 
-  def find_body_xhtml_link(card_html)
+  def title
     doc = Nokogiri::HTML.parse(card_html, nil, nil)
-    link = doc.at_css('table.download td:contains("XHTML") ~ td a').attr('href')
-    URI.join(card_url, link)
+    link = doc.at_css('head > meta[property="og:title"]').attr('content')
   end
 end
 
 if __FILE__ == $PROGRAM_NAME
   card_url = ARGV[0] || 'https://www.aozora.gr.jp/cards/001383/card56875.html'
   crawler = CardCrawler.new(card_url)
-  puts crawler.card_crawl[0..1000]
+  puts crawler.card_crawl
 end
