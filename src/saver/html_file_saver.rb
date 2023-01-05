@@ -34,7 +34,7 @@ if __FILE__ == $PROGRAM_NAME
     </html>
   EOF
 
-  args = {file_name:, card_html:}
+  args = {file_name: file_name, card_html: card_html}
   saver = HTMLCardSaver.new(args)
   saver.save
 end
