@@ -3,7 +3,7 @@ require 'nokogiri'
 require 'uri'
 
 class Card
-  attr_reader :card_url, :html, :title, :body_link
+  attr_reader :card_url, :html, :title, :body_link, :body
   SAVE_LOCATION = File.expand_path("../../result_htmls", __dir__)
 
   def initialize(url)
@@ -13,17 +13,16 @@ class Card
     @body_link = find_body_link
   end
 
-  def save_body(file_name = nil)
-    file_name ||= "#{title}.html"
-    result = crawl
-    File.open(file_path(file_name),"w") do |f|
-      f.write(result[:body])
-    end
+  def fetch_body
+    logging "crawling #{title}"
+    @body = fetch_html(body_link)
   end
 
-  def crawl
-    logging "crawling #{title}"
-    {title: title, body: fetch_body}
+  def save_body(file_name = nil)
+    file_name ||= "#{title}.html"
+    File.open(file_path(file_name),"w") do |f|
+      f.write(body)
+    end
   end
 
   private
@@ -49,10 +48,6 @@ class Card
     title + sub_title
   end
 
-  def fetch_body
-    fetch_html(body_link)
-  end
-
   def file_path(file_name)
     "#{SAVE_LOCATION}/#{file_name}"
   end
@@ -65,5 +60,6 @@ end
 if __FILE__ == $PROGRAM_NAME
   card_url = ARGV[0] || 'https://www.aozora.gr.jp/cards/001383/card56875.html'
   card = Card.new(card_url)
-  puts card.save_body
+  card.fetch_body
+  card.save_body
 end
