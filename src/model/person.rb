@@ -4,7 +4,7 @@ require 'uri'
 require_relative './card.rb'
 
 class Person
-  attr_reader :person_url, :html, :card_links
+  attr_reader :person_url, :html, :card_links, :cards
 
   def initialize(person_url)
     @person_url = person_url
@@ -13,15 +13,15 @@ class Person
   end
 
   def fetch_cards
-    card_links.map {|card_link| fetch_card(card_link) }
-  end
-
-  def save_cards
-    fetch_cards.each(&:save_body)
+    @cards = card_links.map {|card_link| fetch_card(card_link) }
   end
 
   def crawl
-    fetch_cards.each(&:crawl)
+    cards.each(&:fetch_body)
+  end
+
+  def save_cards
+    cards.each(&:save_body)
   end
 
   private
@@ -49,5 +49,5 @@ end
 if __FILE__ == $PROGRAM_NAME
   person_url = ARGV[0] || 'https://www.aozora.gr.jp/index_pages/person1383.html'
   person = Person.new(person_url)
-  person.crawl
+  person.fetch_cards
 end
